@@ -26,9 +26,15 @@ app.get('/', (req, res) => {
 
 // Import routes
 import userRoutes from './src/routes/userRoutes.js';
+import productRoutes from './src/routes/productRoutes.js';
+import favoriteRoutes from './src/routes/favoriteRoutes.js';
+import cartRoutes from './src/routes/cartRoutes.js';
 
 // Use routes
 app.use('/api/users', userRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/cart', cartRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
