@@ -5,6 +5,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  checkUserExists,
 } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -17,6 +18,8 @@ router.route('/:id')
   .get(getUser)
   .put(updateUser)
   .delete(deleteUser);
+
+router.route('/exists/:id').get(checkUserExists);
 
 
 export default router;

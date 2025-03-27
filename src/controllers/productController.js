@@ -224,18 +224,19 @@ export const updateInventory = async (req, res) => {
 };
 
 // Get trending products
-// export const getTrendingProducts = async (req, res) => {
-//   try {
-//     const products = await Product.find({ isActive: true })
-//       .sort({ trendingScore: -1 });
+export const getTrendingProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ isActive: true })
+      .sort({ favoritesCount: -1 })
+      .limit(10);
 
-//     return res.status(200).json(
-//       new ApiResponse(200, products, "Trending products fetched successfully")
-//     );
-//   } catch (error) {
-//     throw new ApiError(500, error?.message || "Error while fetching trending products");
-//   }
-// };
+    return res.status(200).json(
+      new ApiResponse(200, products, "Trending products fetched successfully")
+    );
+  } catch (error) {
+    throw new ApiError(500, error?.message || "Error while fetching trending products");
+  }
+};
 
 // Get products by category
 export const getProductsByCategory = async (req, res) => {

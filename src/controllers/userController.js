@@ -50,61 +50,27 @@ export const getUser = async (req, res) => {
 // @access  Public
 export const createUser = async (req, res) => {
   try {
-    // Check if user already exists
-    const existingUser = await User.findOne({ email: req.body.email });
+    const { email, firebaseId } = req.body;
+    if (!firebaseId) {
+      throw new Error('Firebase ID is required');
+    }
     
+    // Ensure firebaseId is unique
+    const existingUser = await User.findOne({ firebaseId });
     if (existingUser) {
-      // Update existing user
-      const updatedUser = await User.findOneAndUpdate(
-        { email: req.body.email },
-        req.body,
-        { 
-          new: true,
-          runValidators: true
-        }
-      );
-      
-      return res.status(200).json({
-        success: true,
-        data: updatedUser,
-        message: 'User updated successfully'
-      });
+      return res.status(400).json({ message: 'User already exists' });
     }
     
-    // Create new user if doesn't exist
-    const user = await User.create(req.body);
-    
-    console.log("======================🌹😍======>", user);
-    
-    res.status(201).json({
-      success: true,
-      data: user,
-    });
+    const newUser = new User({ email, firebaseId });
+    await newUser.save();
+    res.json({ message: 'User created successfully' });
   } catch (error) {
-    console.error("User creation error:", error);
-    
-    if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        message: 'Duplicate email address or Firebase ID',
-      });
-    }
-    
-    if (error.name === 'ValidationError') {
-      const messages = Object.values(error.errors).map(val => val.message);
-      return res.status(400).json({
-        success: false,
-        message: messages.join(', ')
-      });
-    }
-    
-    res.status(500).json({
-      success: false,
-      message: 'Server Error',
-      error: error.message
-    });
+    console.error('User creation error:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
-};// @desc    Update user
+};
+
+// @desc    Update user
 // @route   PUT /api/users/:id
 // @access  Public
 export const updateUser = async (req, res) => {
@@ -119,6 +85,7 @@ export const updateUser = async (req, res) => {
       weight: req.body.weight,
       gender: req.body.gender,
       preferredSize: req.body.preferredSize,
+      avatar : req.body.avatar,
       completedProfile: true
     };
     const updatedUser = await User.findOneAndUpdate(
@@ -155,16 +122,16 @@ export const updateUser = async (req, res) => {
 };
 
 
-// export const checkUserExists = async (req, res) => {
-//   try {
-//     const firebaseId = req.params.id;
-//     const user = await User.findOne({ firebaseId });
-//     return !!user;
-//   } catch (error) {
-//     console.error('Error checking user existence:', error);
-//     return false;
-//   }
-// };
+export const checkUserExists = async (req, res) => {
+  try {
+    const firebaseId = req.params.id;
+    const user = await User.findOne({ firebaseId });
+    res.json({ exists: !!user });
+  } catch (error) {
+    console.error('Error checking user existence:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+};
 // @desc    Delete user
 // @route   DELETE /api/users/:id
 // @access  Public
