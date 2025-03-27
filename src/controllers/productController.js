@@ -6,6 +6,8 @@ import { ApiResponse } from '../utils/responseUtil.js';
 // Get all products with filtering and sorting
 export const getAllProducts = async (req, res) => {
   try {
+
+    console.log('Received request to get all products');
     const {
       sort = '-createdAt',
       category,
@@ -128,6 +130,7 @@ export const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = req.body;
+    console.log("This is updated data from admin ", updateData);
 
     const product = await Product.findById(id);
     
@@ -135,12 +138,15 @@ export const updateProduct = async (req, res) => {
       throw new ApiError(404, "Product not found");
     }
 
+    console.log("This is updated data from admin 2")
+
+    Object.keys(updateData).forEach(key => {
+      product[key] = updateData[key];
+    });
+
     // Update product
-    const updatedProduct = await Product.findByIdAndUpdate(
-      id,
-      updateData,
-      { new: true, runValidators: true }
-    );
+    const updatedProduct = await product.save();
+    console.log("This is updated data from admin 1 ");
 
     return res.status(200).json(
       new ApiResponse(200, updatedProduct, "Product updated successfully")
@@ -153,6 +159,8 @@ export const updateProduct = async (req, res) => {
 // Delete product (soft delete by setting isActive to false)
 export const deleteProduct = async (req, res) => {
   try {
+
+    console.log('Received request to delete product');
     const { id } = req.params;
 
     const product = await Product.findById(id);
