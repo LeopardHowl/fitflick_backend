@@ -31,6 +31,8 @@ import favoriteRoutes from './src/routes/favoriteRoutes.js';
 import cartRoutes from './src/routes/cartRoutes.js';
 import backgroundRoutes from './src/routes/backgroundRoutes.js';
 import uploadRoutes from './src/routes/uploadRoutes.js';
+import brandRoutes from './src/routes/brandRoutes.js';
+import authAuthRoutes from './src/routes/adminAuthRoutes.js';
 
 
 // Use routes
@@ -40,6 +42,8 @@ app.use('/api/favorites', favoriteRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/backgrounds', backgroundRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/brands', brandRoutes);
+app.use("/api/auth", authAuthRoutes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {

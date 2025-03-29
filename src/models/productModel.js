@@ -83,10 +83,9 @@ const productSchema = new mongoose.Schema({
     min: 0
   },
   brand: {
-    type: String,
-    required: true,
-    trim: true,
-    index: true
+    type: mongoose.Schema.Types.ObjectId,
+    ref : 'Brand',
+    required: true,   
   },
   isActive: {
     type: Boolean,

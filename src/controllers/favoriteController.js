@@ -10,11 +10,6 @@ export const addFavorite = async (req, res) => {
 
     const { productId, userId } = req.body;    
 
-    // const existingFavorite = await Favorite.findOne({ user: userId, product: productId });
-    // if (existingFavorite) {
-    //   return res.status(200).json({ success: true, message: 'Product already in favorites' });
-    // }
-
     // Create new favorite
     await Favorite.create({ user: userId, product: productId });
 
