@@ -6,6 +6,9 @@ import {
   updateUser,
   deleteUser,
   checkUserExists,
+  addFriend,
+  removeFriend,
+  getUserFriends
 } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -21,5 +24,12 @@ router.route('/:id')
 
 router.route('/exists/:id').get(checkUserExists);
 
+// Friend management routes
+router.route('/:id/friends')
+  .get(getUserFriends)
+  .post(addFriend);
+
+router.route('/:id/friends/remove')
+  .post(removeFriend);
 
 export default router;

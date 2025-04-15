@@ -75,6 +75,7 @@ export const addToCart = async (req, res) => {
       path: "items",
       populate: {
         path: "productId",
+        populate: { path: "brand", model: "Brand" },
       },
     });
 
@@ -120,6 +121,7 @@ export const updateCartItemQuantity = async (req, res) => {
       path: "items",
       populate: {
         path: "productId",
+        populate: { path: "brand", model: "Brand" },
       },
     });
 
