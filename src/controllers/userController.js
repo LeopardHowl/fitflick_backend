@@ -66,10 +66,10 @@ export const createUser = async (req, res) => {
 
     const newUser = new User({ email, firebaseId });
     await newUser.save();
-    res.json({ message: "User created successfully" });
+    res.json({ success: true, data: newUser });
   } catch (error) {
     console.error("User creation error:", error);
-    res.status(500).json({ message: "Internal Server Error" });
+    res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
 
@@ -114,7 +114,7 @@ export const updateUser = async (req, res) => {
       success: false,
       message: error.message,
     });
-    console.log("======================34343======>", error);
+    console.log("======>", error);
   }
 };
 
