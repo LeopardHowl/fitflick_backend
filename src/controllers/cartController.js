@@ -1,6 +1,5 @@
 import Cart from "../models/cartModel.js";
 import CartItem from "../models/cartItemModel.js";
-import { populate } from "dotenv";
 
 // Get user's cart
 export const getUserCart = async (req, res) => {
