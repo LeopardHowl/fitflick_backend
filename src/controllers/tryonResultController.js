@@ -14,9 +14,10 @@ export const getUserTryonResults = async (req, res, next) => {
         .json(new ApiResponse(400, null, "Invalid user ID format"));
     }
 
-    const tryonResults = await TryonResult.find({ userId }).populate(
-      "productId"
-    );
+    const tryonResults = await TryonResult.find({ userId }).populate({
+      path: "product",
+      select: "name price images description category colors sizes brand discountPrice rating"
+    });
 
     return res
       .status(200)
@@ -31,7 +32,7 @@ export const getUserTryonResults = async (req, res, next) => {
 export const createUserTryonResult = async (req, res, next) => {
   try {
     const { userId, productId, imageUrl } = req.body;
-    
+
     // Validate ObjectIds
     if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res
@@ -60,7 +61,7 @@ export const createUserTryonResult = async (req, res, next) => {
 
     const tryonResult = await TryonResult.create({
       userId,
-      productId,
+      product: productId,
       imageUrl,
     });
 

@@ -6,7 +6,7 @@ const TryonResultSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  productId: {
+  product: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Product",
     required: true,
