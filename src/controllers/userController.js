@@ -53,7 +53,7 @@ export const getUser = async (req, res) => {
 // @access  Public
 export const createUser = async (req, res) => {
   try {
-    const { email, firebaseId } = req.body;
+    const { email, firebaseId, fcmToken } = req.body;
     if (!firebaseId) {
       throw new Error("Firebase ID is required");
     }
@@ -64,7 +64,7 @@ export const createUser = async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    const newUser = new User({ email, firebaseId });
+    const newUser = new User({ email, firebaseId, fcmToken });
     await newUser.save();
     res.json({ success: true, data: newUser });
   } catch (error) {
@@ -128,9 +128,45 @@ export const checkUserExists = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
-// @desc    Delete user
-// @route   DELETE /api/users/:id
-// @access  Public
+export const updateFcmToken = async (req, res) => {
+  try {
+    const { firebaseId } = req.params
+    const { fcmToken } = req.body
+    
+    if (!fcmToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'FCM token is required'
+      })
+    }
+    
+    const user = await User.findOne({ firebaseId })
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found'
+      })
+    }
+    
+    // Update the FCM token
+    user.fcmToken = fcmToken
+    await user.save()
+    
+    res.status(200).json({
+      success: true,
+      data: user
+    })
+  } catch (error) {
+    console.error('Error updating FCM token:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Server Error',
+      error: error.message
+    })
+  }
+};
+
 export const deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
@@ -271,7 +307,7 @@ export const getUserFriends = async (req, res) => {
 
     const user = await User.findById(userId).populate(
       "friends",
-      "name email avatar"
+      "name email avatar fcmToken"
     );
 
     if (!user) {

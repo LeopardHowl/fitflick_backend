@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please add a firebase ID'],
     unique: true,
   },
+  fcmToken:{
+    type:String,
+    required: [false, 'Please add a fcm token'],
+  },
   email: {
     type: String,
     required: [true, 'Please add an email'],

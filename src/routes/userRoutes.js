@@ -8,7 +8,8 @@ import {
   checkUserExists,
   addFriend,
   removeFriend,
-  getUserFriends
+  getUserFriends,
+  updateFcmToken
 } from '../controllers/userController.js';
 
 const router = express.Router();
@@ -23,6 +24,10 @@ router.route('/:id')
   .delete(deleteUser);
 
 router.route('/exists/:id').get(checkUserExists);
+
+// FCM token update route
+router.route('/:firebaseId/fcm-token')
+  .put(updateFcmToken);
 
 // Friend management routes
 router.route('/:id/friends')
