@@ -1,23 +1,25 @@
 import express from 'express';
 import {
   getAllProducts,
+  getActiveProducts,
   getProductById,
   createProduct,
   updateProduct,
   deleteProduct,
   hardDeleteProduct,
   updateInventory,
-  // getTrendingProducts,
+  getTrendingProducts,
   getProductsByCategory
 } from '../controllers/productController.js';
 
 const router = express.Router();
 // Public routes
 router.get('/', getAllProducts);
-// router.get('/trending', getTrendingProducts);
+router.get('/active', getActiveProducts);
+router.get('/trending', getTrendingProducts);
 router.get('/category/:category', getProductsByCategory);
 router.get('/:id', getProductById);
-// router.get('/trending', getTrendingProducts);
+
 
 // Protected routes (admin only)
 router.post('/', createProduct);

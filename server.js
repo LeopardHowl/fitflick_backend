@@ -1,8 +1,8 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import helmet from 'helmet';
-import connectDB from './src/config/db.js';
+import express from "express";
+import dotenv from "dotenv";
+import cors from "cors";
+import helmet from "helmet";
+import connectDB from "./src/config/db.js";
 
 // Load environment variables
 dotenv.config();
@@ -20,21 +20,33 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.get('/', (req, res) => {
-  res.send('API is running...');
+app.get("/", (req, res) => {
+  res.send("API is running...");
 });
 
 // Import routes
-import userRoutes from './src/routes/userRoutes.js';
-import productRoutes from './src/routes/productRoutes.js';
-import favoriteRoutes from './src/routes/favoriteRoutes.js';
-import cartRoutes from './src/routes/cartRoutes.js';
+import userRoutes from "./src/routes/userRoutes.js";
+import productRoutes from "./src/routes/productRoutes.js";
+import favoriteRoutes from "./src/routes/favoriteRoutes.js";
+import cartRoutes from "./src/routes/cartRoutes.js";
+import backgroundRoutes from "./src/routes/backgroundRoutes.js";
+import uploadRoutes from "./src/routes/uploadRoutes.js";
+import brandRoutes from "./src/routes/brandRoutes.js";
+import authAuthRoutes from "./src/routes/adminAuthRoutes.js";
+import messageRoutes from "./src/routes/messageRouter.js";
+import tryonResultRoutes from "./src/routes/tryonResultRoutes.js";
 
 // Use routes
-app.use('/api/users', userRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/favorites', favoriteRoutes);
-app.use('/api/cart', cartRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/favorites", favoriteRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/backgrounds", backgroundRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/brands", brandRoutes);
+app.use("/api/auth", authAuthRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/tryonresults", tryonResultRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -42,7 +54,7 @@ app.use((err, req, res, next) => {
   res.status(statusCode);
   res.json({
     message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
+    stack: process.env.NODE_ENV === "production" ? null : err.stack,
   });
 });
 

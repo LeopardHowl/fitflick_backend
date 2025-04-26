@@ -6,6 +6,10 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Please add a firebase ID'],
     unique: true,
   },
+  fcmToken:{
+    type:String,
+    required: [false, 'Please add a fcm token'],
+  },
   email: {
     type: String,
     required: [true, 'Please add an email'],
@@ -19,6 +23,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: [false, 'Please add a name'],
   },
+  gender: {
+    type: String,
+    required: [false, 'Please add gender'],
+  },
   height: {
     type: Number,
     required: [false, 'Please add height'],
@@ -26,10 +34,6 @@ const userSchema = new mongoose.Schema({
   weight: {
     type: Number,
     required: [false, 'Please add weight'],
-  },
-  gender: {
-    type: String,
-    required: [false, 'Please add gender'],
   },
   preferredSize: {
     type: String,
@@ -43,10 +47,18 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product',
   }],
+  avatar: {
+    type: String,
+    required: [false, 'Please add an avatar'],
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
+  friends: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+  }],
 });
 
 const User = mongoose.model('User', userSchema);
