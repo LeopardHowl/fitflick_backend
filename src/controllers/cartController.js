@@ -12,7 +12,7 @@ export const getUserCart = async (req, res) => {
     const cart = await Cart.findOne({ userId }).populate({
       path: "items",
       populate: {
-        path: "productId",
+        path: "product",
         model: "Product",
         populate: { path: "brand", model: "Brand" },
       },
@@ -31,9 +31,9 @@ export const getUserCart = async (req, res) => {
 // Add product to cart
 export const addToCart = async (req, res) => {
   try {
-    const { userId, productId, quantity = 1 } = req.body;
+    const { userId, product, quantity = 1 } = req.body;
 
-    console.log("Adding product to cart:", { userId, productId, quantity });
+    console.log("Adding product to cart:", { userId, product, quantity });
 
     // Find or create cart
     let cart = await Cart.findOne({ userId });
@@ -45,7 +45,7 @@ export const addToCart = async (req, res) => {
     // Check if product already in cart
     const existingCartItem = await CartItem.findOne({
       cartId: cart._id,
-      productId,
+      product,
     });
 
     if (existingCartItem) {
@@ -56,7 +56,7 @@ export const addToCart = async (req, res) => {
       // Create new cart item
       const newCartItem = new CartItem({
         cartId: cart._id,
-        productId,
+        product,
         quantity,
       });
       await newCartItem.save();
@@ -73,7 +73,7 @@ export const addToCart = async (req, res) => {
     const updatedCart = await Cart.findById(cart._id).populate({
       path: "items",
       populate: {
-        path: "productId",
+        path: "product",
         populate: { path: "brand", model: "Brand" },
       },
     });
@@ -119,7 +119,7 @@ export const updateCartItemQuantity = async (req, res) => {
     const updatedCart = await Cart.findById(cart._id).populate({
       path: "items",
       populate: {
-        path: "productId",
+        path: "product",
         populate: { path: "brand", model: "Brand" },
       },
     });
@@ -153,7 +153,7 @@ export const removeFromCart = async (req, res) => {
     const updatedCart = await Cart.findById(cart._id).populate({
       path: "items",
       populate: {
-        path: "productId",
+        path: "product",
       },
     });
 

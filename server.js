@@ -35,6 +35,8 @@ import brandRoutes from "./src/routes/brandRoutes.js";
 import authAuthRoutes from "./src/routes/adminAuthRoutes.js";
 import messageRoutes from "./src/routes/messageRouter.js";
 import tryonResultRoutes from "./src/routes/tryonResultRoutes.js";
+import pollRoutes from "./src/routes/pollRoutes.js";
+import groupRoutes from "./src/routes/groupRoutes.js";
 
 // Use routes
 app.use("/api/users", userRoutes);
@@ -47,6 +49,8 @@ app.use("/api/brands", brandRoutes);
 app.use("/api/auth", authAuthRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/tryonresults", tryonResultRoutes);
+app.use("/api/polls", pollRoutes);
+app.use("/api/groups", groupRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
