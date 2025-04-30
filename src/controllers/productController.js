@@ -381,6 +381,7 @@ export const getTrendingProducts = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { category } = req.params;
+    console.log("Category:", category);
     const { sort = '-createdAt', active } = req.query;
 
     let query = { category };
@@ -393,12 +394,14 @@ export const getProductsByCategory = async (req, res) => {
     const products = await Product.find(query)
       .populate('brand', 'name description logo website productsCount')
       .sort(sort);
-
+      console.log("Products:", products[0]);
+      
 
     return res.status(200).json(
       new ApiResponse(200, { products }, `Products in ${category} category fetched successfully`)
     );
   } catch (error) {
+    console.log("Error:", error);
     throw new ApiError(500, error?.message || "Error while fetching products by category");
   }
 };

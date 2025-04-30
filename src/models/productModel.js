@@ -9,12 +9,12 @@ const productSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    required: true
+    // required: true
   },
   category: {
     type: String,
     required: true,
-    enum: ['tops', 'bottoms', 'dresses', 'outerwear', 'jeans'],
+    // enum: ['tops', 'bottoms', 'dresses', 'outerwear', 'jeans'],
     index: true
   },
   price: {
@@ -26,11 +26,12 @@ const productSchema = new mongoose.Schema({
     type: Number,
     min: 0,
     validate: {
-      validator: function(value) {
+      validator: function (value) {
+        if (value === null) return true;
         return value <= this.price;
       },
-      message: 'Discount price must be less than or equal to regular price'
-    }
+      message: "Discount price must be less than or equal to regular price",
+    },
   },
   images: [{
     url: {
