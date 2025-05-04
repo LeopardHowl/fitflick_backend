@@ -115,6 +115,24 @@ export const updateCartItemQuantity = async (req, res) => {
     cartItem.quantity = quantity;
     await cartItem.save();
 
+    // Calculate total amount
+    let totalAmount = 0;
+    const populatedCart = await Cart.findById(cart._id).populate({
+      path: "items",
+      populate: {
+        path: "product",
+        model: "Product",
+      },
+    });
+    
+    for (const item of populatedCart.items) {
+      totalAmount += item.product.price * item.quantity;
+    }
+    
+    // Update cart total amount
+    populatedCart.totalAmount = totalAmount;
+    await populatedCart.save();
+
     // Return updated cart
     const updatedCart = await Cart.findById(cart._id).populate({
       path: "items",
