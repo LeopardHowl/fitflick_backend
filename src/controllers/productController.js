@@ -377,11 +377,16 @@ export const getTrendingProducts = async (req, res) => {
   }
 };
 
-// Get products by category
+// Get products by category with pagination
 export const getProductsByCategory = async (req, res) => {
   try {
     const { category } = req.params;
-    const { sort = '-createdAt', active } = req.query;
+    const { 
+      sort = '-createdAt', 
+      active,
+      page = 1,
+      limit = 10
+    } = req.query;
 
     let query = { category };
     
@@ -390,15 +395,31 @@ export const getProductsByCategory = async (req, res) => {
       query.isActive = active === 'true';
     }
 
+    // Calculate skip value for pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Get total count for pagination metadata
+    const total = await Product.countDocuments(query);
+
     const products = await Product.find(query)
       .populate('brand', 'name description logo website productsCount')
-      .sort(sort);
-
+      .sort(sort)
+      .skip(skip)
+      .limit(parseInt(limit));
 
     return res.status(200).json(
-      new ApiResponse(200, { products }, `Products in ${category} category fetched successfully`)
+      new ApiResponse(200, { 
+        products,
+        pagination: {
+          total,
+          page: parseInt(page),
+          limit: parseInt(limit),
+          pages: Math.ceil(total / parseInt(limit))
+        }
+      }, `Products in ${category} category fetched successfully`)
     );
   } catch (error) {
+    console.log("Error:", error);
     throw new ApiError(500, error?.message || "Error while fetching products by category");
   }
 };
