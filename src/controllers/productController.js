@@ -1,14 +1,14 @@
-import Product from '../models/productModel.js';
-import Brand from '../models/brandModel.js';
-import { ApiError } from '../utils/errorUtil.js';
-import { ApiResponse } from '../utils/responseUtil.js';
+import Product from "../models/productModel.js";
+import Brand from "../models/brandModel.js";
+import { ApiError } from "../utils/errorUtil.js";
+import { ApiResponse } from "../utils/responseUtil.js";
 
 // Get all products with filtering and sorting
 export const getAllProducts = async (req, res) => {
   try {
-    console.log('Received request to get all products');
+    console.log("Received request to get all products");
     const {
-      sort = '-createdAt',
+      sort = "-createdAt",
       category,
       brand,
       minPrice,
@@ -16,7 +16,7 @@ export const getAllProducts = async (req, res) => {
       sizes,
       colors,
       search,
-      isActive
+      isActive,
     } = req.query;
 
     const query = {};
@@ -24,8 +24,8 @@ export const getAllProducts = async (req, res) => {
     // Apply filters
     if (category) query.category = category;
     if (brand) query.brand = brand;
-    if (isActive !== undefined) query.isActive = isActive === 'true';
-    
+    if (isActive !== undefined) query.isActive = isActive === "true";
+
     // Price range
     if (minPrice !== undefined || maxPrice !== undefined) {
       query.price = {};
@@ -35,14 +35,14 @@ export const getAllProducts = async (req, res) => {
 
     // Size filter
     if (sizes) {
-      const sizeArray = sizes.split(',');
+      const sizeArray = sizes.split(",");
       query.sizes = { $in: sizeArray };
     }
 
     // Color filter
     if (colors) {
-      const colorArray = colors.split(',');
-      query['colors.name'] = { $in: colorArray };
+      const colorArray = colors.split(",");
+      query["colors.name"] = { $in: colorArray };
     }
 
     // Search
@@ -52,12 +52,14 @@ export const getAllProducts = async (req, res) => {
 
     // Execute query with sorting and populate brand information
     const products = await Product.find(query)
-      .populate('brand', 'name logo website')
+      .populate("brand", "name logo website")
       .sort(sort);
 
-    return res.status(200).json(
-      new ApiResponse(200, { products }, "Products fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, { products }, "Products fetched successfully")
+      );
   } catch (error) {
     throw new ApiError(500, error?.message || "Error while fetching products");
   }
@@ -66,16 +68,16 @@ export const getAllProducts = async (req, res) => {
 // Get only active products
 export const getActiveProducts = async (req, res) => {
   try {
-    console.log('Received request to get active products');
+    console.log("Received request to get active products");
     const {
-      sort = '-createdAt',
+      sort = "-createdAt",
       category,
       brand,
       minPrice,
       maxPrice,
       sizes,
       colors,
-      search
+      search,
     } = req.query;
 
     const query = { isActive: true };
@@ -83,7 +85,7 @@ export const getActiveProducts = async (req, res) => {
     // Apply filters
     if (category) query.category = category;
     if (brand) query.brand = brand;
-    
+
     // Price range
     if (minPrice !== undefined || maxPrice !== undefined) {
       query.price = {};
@@ -93,14 +95,14 @@ export const getActiveProducts = async (req, res) => {
 
     // Size filter
     if (sizes) {
-      const sizeArray = sizes.split(',');
+      const sizeArray = sizes.split(",");
       query.sizes = { $in: sizeArray };
     }
 
     // Color filter
     if (colors) {
-      const colorArray = colors.split(',');
-      query['colors.name'] = { $in: colorArray };
+      const colorArray = colors.split(",");
+      query["colors.name"] = { $in: colorArray };
     }
 
     // Search
@@ -110,14 +112,23 @@ export const getActiveProducts = async (req, res) => {
 
     // Execute query with sorting and populate brand information
     const products = await Product.find(query)
-      .populate('brand', 'name logo website')
+      .populate("brand", "name logo website")
       .sort(sort);
 
-    return res.status(200).json(
-      new ApiResponse(200, { products }, "Active products fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { products },
+          "Active products fetched successfully"
+        )
+      );
   } catch (error) {
-    throw new ApiError(500, error?.message || "Error while fetching active products");
+    throw new ApiError(
+      500,
+      error?.message || "Error while fetching active products"
+    );
   }
 };
 
@@ -126,15 +137,15 @@ export const getProductById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const product = await Product.findById(id).populate('brand');
-    
+    const product = await Product.findById(id).populate("brand");
+
     if (!product) {
       throw new ApiError(404, "Product not found");
     }
 
-    return res.status(200).json(
-      new ApiResponse(200, product, "Product fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, product, "Product fetched successfully"));
   } catch (error) {
     throw new ApiError(500, error?.message || "Error while fetching product");
   }
@@ -153,7 +164,7 @@ export const createProduct = async (req, res) => {
       colors,
       sizes,
       inventory,
-      brand,  
+      brand,
     } = req.body;
 
     // Validate required fields
@@ -178,8 +189,8 @@ export const createProduct = async (req, res) => {
       colors: colors || [],
       sizes: sizes || [],
       inventory: inventory || [],
-      brand,   
-      isActive: true
+      brand,
+      isActive: true,
     });
 
     // Increment brand product count
@@ -187,11 +198,11 @@ export const createProduct = async (req, res) => {
     await brandExists.save();
 
     // Populate brand information in the response
-    await product.populate('brand');
+    await product.populate("brand");
 
-    return res.status(201).json(
-      new ApiResponse(201, product, "Product created successfully")
-    );
+    return res
+      .status(201)
+      .json(new ApiResponse(201, product, "Product created successfully"));
   } catch (error) {
     throw new ApiError(500, error?.message || "Error while creating product");
   }
@@ -205,23 +216,25 @@ export const updateProduct = async (req, res) => {
     console.log("This is updated data from admin ", updateData);
 
     const product = await Product.findById(id);
-    
+
     if (!product) {
       throw new ApiError(404, "Product not found");
     }
 
     // Check if brand is being changed
     const oldBrandId = product.brand.toString();
-    const newBrandId = updateData.brand ? updateData.brand.toString() : oldBrandId;
-    
+    const newBrandId = updateData.brand
+      ? updateData.brand.toString()
+      : oldBrandId;
+
     // Update product fields
-    Object.keys(updateData).forEach(key => {
+    Object.keys(updateData).forEach((key) => {
       product[key] = updateData[key];
     });
 
     // Save the updated product
     const updatedProduct = await product.save();
-    
+
     // If brand has changed, update product counts for both old and new brands
     if (newBrandId !== oldBrandId) {
       // Decrement old brand product count
@@ -230,7 +243,7 @@ export const updateProduct = async (req, res) => {
         oldBrand.productsCount = Math.max(0, oldBrand.productsCount - 1);
         await oldBrand.save();
       }
-      
+
       // Increment new brand product count
       const newBrand = await Brand.findById(newBrandId);
       if (newBrand) {
@@ -240,11 +253,13 @@ export const updateProduct = async (req, res) => {
     }
 
     // Populate brand information in the response
-    await updatedProduct.populate('brand');
+    await updatedProduct.populate("brand");
 
-    return res.status(200).json(
-      new ApiResponse(200, updatedProduct, "Product updated successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, updatedProduct, "Product updated successfully")
+      );
   } catch (error) {
     throw new ApiError(500, error?.message || "Error while updating product");
   }
@@ -253,11 +268,11 @@ export const updateProduct = async (req, res) => {
 // Delete product (soft delete by setting isActive to false)
 export const deleteProduct = async (req, res) => {
   try {
-    console.log('Received request to delete product');
+    console.log("Received request to delete product");
     const { id } = req.params;
 
     const product = await Product.findById(id);
-    
+
     if (!product) {
       throw new ApiError(404, "Product not found");
     }
@@ -267,7 +282,7 @@ export const deleteProduct = async (req, res) => {
       // Soft delete
       product.isActive = false;
       await product.save();
-      
+
       // Decrement brand product count
       const brand = await Brand.findById(product.brand);
       if (brand) {
@@ -276,9 +291,9 @@ export const deleteProduct = async (req, res) => {
       }
     }
 
-    return res.status(200).json(
-      new ApiResponse(200, {}, "Product deleted successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Product deleted successfully"));
   } catch (error) {
     throw new ApiError(500, error?.message || "Error while deleting product");
   }
@@ -290,7 +305,7 @@ export const hardDeleteProduct = async (req, res) => {
     const { id } = req.params;
 
     const product = await Product.findById(id);
-    
+
     if (!product) {
       throw new ApiError(404, "Product not found");
     }
@@ -310,11 +325,14 @@ export const hardDeleteProduct = async (req, res) => {
       }
     }
 
-    return res.status(200).json(
-      new ApiResponse(200, {}, "Product permanently deleted")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, {}, "Product permanently deleted"));
   } catch (error) {
-    throw new ApiError(500, error?.message || "Error while permanently deleting product");
+    throw new ApiError(
+      500,
+      error?.message || "Error while permanently deleting product"
+    );
   }
 };
 
@@ -329,7 +347,7 @@ export const updateInventory = async (req, res) => {
     }
 
     const product = await Product.findById(id);
-    
+
     if (!product) {
       throw new ApiError(404, "Product not found");
     }
@@ -339,11 +357,11 @@ export const updateInventory = async (req, res) => {
     await product.save();
 
     // Populate brand information in the response
-    await product.populate('brand');
+    await product.populate("brand");
 
-    return res.status(200).json(
-      new ApiResponse(200, product, "Inventory updated successfully")
-    );
+    return res
+      .status(200)
+      .json(new ApiResponse(200, product, "Inventory updated successfully"));
   } catch (error) {
     throw new ApiError(500, error?.message || "Error while updating inventory");
   }
@@ -353,27 +371,32 @@ export const updateInventory = async (req, res) => {
 export const getTrendingProducts = async (req, res) => {
   try {
     const { active } = req.query;
-    
+
     let query = {};
-    
+
     // If active parameter is provided, add it to the query
     if (active !== undefined) {
-      query.isActive = active === 'true';
+      query.isActive = active === "true";
     } else {
       // By default, only return active products
       query.isActive = true;
     }
-    
+
     const products = await Product.find(query)
-      .populate('brand', 'name description logo website productsCount')
+      .populate("brand", "name description logo website productsCount")
       .sort({ favoritesCount: -1 })
       .limit(10);
 
-    return res.status(200).json(
-      new ApiResponse(200, products, "Trending products fetched successfully")
-    );
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, products, "Trending products fetched successfully")
+      );
   } catch (error) {
-    throw new ApiError(500, error?.message || "Error while fetching trending products");
+    throw new ApiError(
+      500,
+      error?.message || "Error while fetching trending products"
+    );
   }
 };
 
@@ -381,18 +404,14 @@ export const getTrendingProducts = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { category } = req.params;
-    const { 
-      sort = '-createdAt', 
-      active,
-      page = 1,
-      limit = 10
-    } = req.query;
+    const { sort = "-createdAt", active, page = 1, limit = 20 } = req.query;
+    console.log("Category:", category);
 
     let query = { category };
-    
+
     // If active parameter is provided, add it to the query
     if (active !== undefined) {
-      query.isActive = active === 'true';
+      query.isActive = active === "true";
     }
 
     // Calculate skip value for pagination
@@ -402,24 +421,31 @@ export const getProductsByCategory = async (req, res) => {
     const total = await Product.countDocuments(query);
 
     const products = await Product.find(query)
-      .populate('brand', 'name description logo website productsCount')
+      .populate("brand", "name description logo website productsCount")
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
 
     return res.status(200).json(
-      new ApiResponse(200, { 
-        products,
-        pagination: {
-          total,
-          page: parseInt(page),
-          limit: parseInt(limit),
-          pages: Math.ceil(total / parseInt(limit))
-        }
-      }, `Products in ${category} category fetched successfully`)
+      new ApiResponse(
+        200,
+        {
+          products,
+          pagination: {
+            total,
+            page: parseInt(page),
+            limit: parseInt(limit),
+            pages: Math.ceil(total / parseInt(limit)),
+          },
+        },
+        `Products in ${category} category fetched successfully`
+      )
     );
   } catch (error) {
     console.log("Error:", error);
-    throw new ApiError(500, error?.message || "Error while fetching products by category");
+    throw new ApiError(
+      500,
+      error?.message || "Error while fetching products by category"
+    );
   }
 };

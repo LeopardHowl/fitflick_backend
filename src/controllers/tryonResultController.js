@@ -16,7 +16,8 @@ export const getUserTryonResults = async (req, res, next) => {
 
     const tryonResults = await TryonResult.find({ userId }).populate({
       path: "product",
-      select: "name price images description category colors sizes brand discountPrice rating"
+      select:
+        "name price images description category colors sizes brand discountPrice rating",
     });
 
     return res
@@ -73,6 +74,50 @@ export const createUserTryonResult = async (req, res, next) => {
   } catch (error) {
     next(
       new ApiError(500, error?.message || "Error while creating tryon result")
+    );
+  }
+};
+
+export const getMostRecentTryonResult = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    // Validate userId is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res
+        .status(400)
+        .json(new ApiResponse(400, null, "Invalid user ID format"));
+    }
+
+    const mostRecentResult = await TryonResult.findOne({ userId })
+      .sort({ createdAt: -1 }) // Sort by creation date descending
+      .populate({
+        path: "product",
+        select:
+          "name price images description category colors sizes brand discountPrice rating",
+      });
+
+    if (!mostRecentResult) {
+      return res
+        .status(404)
+        .json(new ApiResponse(404, null, "No try-on results found"));
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          mostRecentResult,
+          "Most recent tryon result fetched successfully"
+        )
+      );
+  } catch (error) {
+    next(
+      new ApiError(
+        500,
+        error?.message || "Error fetching most recent tryon result"
+      )
     );
   }
 };
