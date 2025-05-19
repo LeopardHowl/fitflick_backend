@@ -17,6 +17,7 @@ export const getAllProducts = async (req, res) => {
       colors,
       search,
       isActive,
+      gender,
     } = req.query;
 
     const query = {};
@@ -25,6 +26,7 @@ export const getAllProducts = async (req, res) => {
     if (category) query.category = category;
     if (brand) query.brand = brand;
     if (isActive !== undefined) query.isActive = isActive === "true";
+    if (gender) query.gender = gender;
 
     // Price range
     if (minPrice !== undefined || maxPrice !== undefined) {
@@ -78,6 +80,7 @@ export const getActiveProducts = async (req, res) => {
       sizes,
       colors,
       search,
+      gender,
     } = req.query;
 
     const query = { isActive: true };
@@ -85,6 +88,7 @@ export const getActiveProducts = async (req, res) => {
     // Apply filters
     if (category) query.category = category;
     if (brand) query.brand = brand;
+    if (gender) query.gender = gender;
 
     // Price range
     if (minPrice !== undefined || maxPrice !== undefined) {
@@ -165,10 +169,11 @@ export const createProduct = async (req, res) => {
       sizes,
       inventory,
       brand,
+      gender,
     } = req.body;
 
     // Validate required fields
-    if (!name || !description || !category || !price || !brand) {
+    if (!name || !description || !category || !price || !brand || !gender) {
       throw new ApiError(400, "All required fields must be provided");
     }
 
@@ -190,6 +195,7 @@ export const createProduct = async (req, res) => {
       sizes: sizes || [],
       inventory: inventory || [],
       brand,
+      gender,
       isActive: true,
     });
 
@@ -370,7 +376,7 @@ export const updateInventory = async (req, res) => {
 // Get trending products
 export const getTrendingProducts = async (req, res) => {
   try {
-    const { active } = req.query;
+    const { active, gender } = req.query;
 
     let query = {};
 
@@ -380,6 +386,11 @@ export const getTrendingProducts = async (req, res) => {
     } else {
       // By default, only return active products
       query.isActive = true;
+    }
+
+    // Add gender filter if provided
+    if (gender) {
+      query.gender = gender;
     }
 
     const products = await Product.find(query)
@@ -404,7 +415,7 @@ export const getTrendingProducts = async (req, res) => {
 export const getProductsByCategory = async (req, res) => {
   try {
     const { category } = req.params;
-    const { sort = "-createdAt", active, page = 1, limit = 20 } = req.query;
+    const { sort = "-createdAt", active, page = 1, limit = 20, gender } = req.query;
     console.log("Category:", category);
 
     let query = { category };
@@ -412,6 +423,11 @@ export const getProductsByCategory = async (req, res) => {
     // If active parameter is provided, add it to the query
     if (active !== undefined) {
       query.isActive = active === "true";
+    }
+    
+    // Add gender filter if provided
+    if (gender) {
+      query.gender = gender;
     }
 
     // Calculate skip value for pagination

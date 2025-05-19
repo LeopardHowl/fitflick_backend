@@ -16,7 +16,7 @@ export const zaraProductController = async (req, res) => {
       "Cache-Control": "max-age=0",
     };
 
-    const zaraCategories = [
+    const zaraWomanCategories = [
       { key: "LINEN", value: "2418878" },
       { key: "DRESSES", value: "2420896" },
       { key: "TOPS", value: "2419940" },
@@ -35,10 +35,32 @@ export const zaraProductController = async (req, res) => {
       { key: "JACKETS", value: "2417772" },
       { key: "COATS", value: "2419032" },
     ];
+    const zaraManCategories = [
+      { key: "SWIMWEAR", value: "2576034" },
+      { key: "SUMMERY GARMENTS", value: "2436948" },
+      { key: "SHIRTS", value: "2431994" },
+      { key: "LINEN", value: "2431961" },
+      { key: "SHORT SLEEVE SHIRTS", value: "2563452" },
+      { key: "POLO SHIRTS", value: "2432049" },
+      { key: "SUITS", value: "2432192" },
+      { key: "T-SHIRTS", value: "2432042" },
+      { key: "TROUSERS", value: "2432096" },
+      { key: "JEANS", value: "2432131" },
+      { key: "SHORTS", value: "2432164" },
+      { key: "MATCHING SETS", value: "2444847" },
+      { key: "SWEATERS", value: "2432265" },
+      { key: "HOODIES", value: "2432232" },
+      { key: "OVERSHIRTS", value: "2432280" },
+      { key: "BLAZERS", value: "2436311" },
+      { key: "JACKETS", value: "2467336" },
+      { key: "WEDDING", value: "2563455" },
+      { key: "COATS", value: "2432200" },
+    ];
 
     const createdProducts = [];
 
-    for (const category of zaraCategories) {
+    // Process men's categories
+    for (const category of zaraManCategories) {
       const response = await axios.get(
         `https://www.zara.com/my/en/category/${category.value}/products?ajax=true`,
         { headers }
@@ -95,6 +117,7 @@ export const zaraProductController = async (req, res) => {
             name: p.name || "No Name",
             description: p.description || "",
             category: category.key,
+            gender: "male", // Set gender to male for men's products
             price,
             discountPrice,
             images,
@@ -105,7 +128,87 @@ export const zaraProductController = async (req, res) => {
               count: 0,
             },
             favoritesCount: 0,
-            brand: "67e6c0ecb1ed8c770edb0a1a",
+            brand: "67e6c0ecb1ed8c770edb0a1a", // Zara brand ID
+            isActive: true,
+          });
+
+          createdProducts.push(product);
+        } catch (productError) {
+          console.error(`Error creating product ${p.name}:`, productError);
+        }
+      }
+    }
+
+    // Process women's categories
+    for (const category of zaraWomanCategories) {
+      const response = await axios.get(
+        `https://www.zara.com/my/en/category/${category.value}/products?ajax=true`,
+        { headers }
+      );
+
+      const data = response.data;
+
+      // Check if data and productGroups exist
+      if (!data || !data.productGroups || !data.productGroups[0]) {
+        console.log(`No products found for category: ${category.key}`);
+        continue;
+      }
+
+      let elements = data.productGroups[0].elements;
+      let products = [];
+
+      elements.forEach((block) => {
+        if (Array.isArray(block.commercialComponents)) {
+          products.push(...block.commercialComponents);
+        }
+      });
+
+      const wearProducts = products.filter((p) => p.kind === "Wear");
+
+      console.log(
+        `Found ${wearProducts.length} products in category ${category.key}`
+      );
+
+      for (const p of wearProducts) {
+        try {
+          let images = [];
+          let colors = [];
+
+          if (p.detail && p.detail.colors && Array.isArray(p.detail.colors)) {
+            colors = extractColors(p.detail.colors);
+            images = [];
+            for (let i = 0; i < p.detail.colors.length; i++) {
+              if (p.detail.colors[i].xmedia) {
+                images.push(...extractImages(p.detail.colors[i].xmedia));
+              }
+            }
+          }
+
+          const sizes = extractSizes(p.detail);
+
+          let price = p.price ? p.price / 100 : 0;
+          let discountPrice = p.oldPrice ? p.oldPrice / 100 : null;
+
+          if (discountPrice !== null && discountPrice > price) {
+            discountPrice = null;
+          }
+
+          const product = await Product.create({
+            name: p.name || "No Name",
+            description: p.description || "",
+            category: category.key,
+            gender: "female", // Set gender to female for women's products
+            price,
+            discountPrice,
+            images,
+            colors,
+            sizes,
+            rating: {
+              average: 0,
+              count: 0,
+            },
+            favoritesCount: 0,
+            brand: "67e6c0ecb1ed8c770edb0a1a", // Zara brand ID
             isActive: true,
           });
 
@@ -186,25 +289,25 @@ function extractColors(colorsArray) {
 
   const colorHexMap = {
     "Light blue": "#ADD8E6",
-    MARSALA: "#964F4C",
+    "MARSALA": "#964F4C",
     "Oyster - white": "#F0EAD6",
     "Oyster-white": "#F0EAD6",
-    Brick: "#8B4513",
-    camel: "#C19A6B",
-    Burgundy: "#800020",
-    Indigo: "#4B0082",
-    Sand: "#F4A460",
-    Black: "#000000",
-    White: "#FFFFFF",
-    Chocolate: "#7B3F00",
-    Blue: "#0000FF",
+    "Brick": "#8B4513",
+    "camel": "#C19A6B",
+    "Burgundy": "#800020",
+    "Indigo": "#4B0082",
+    "Sand": "#F4A460",
+    "Black": "#000000",
+    "White": "#FFFFFF",
+    "Chocolate": "#7B3F00",
+    "Blue": "#0000FF",
     "Light camel": "#D4B59C",
     "Navy blue": "#000080",
-    Ecru: "#C2B280",
-    Brown: "#964B00",
+    "Ecru": "#C2B280",
+    "Brown": "#964B00",
     "Light yellow": "#FFFFE0",
     "Chocolate brown": "#7B3F00",
-    Oil: "#3B3131",
+    "Oil": "#3B3131",
     "Dark grey": "#A9A9A9",
     "DARK SALMON": "#E9967A",
     "Sand / Black": "#826644",
@@ -213,32 +316,32 @@ function extractColors(colorsArray) {
     "Sky blue": "#87CEEB",
     "Ecru / Green": "#90A955",
     "Red / Black": "#800000",
-    Khaki: "#C3B091",
+    "Khaki": "#C3B091",
     "Mid-grey": "#808080",
     "Grey marl": "#B4B4B4",
     "Ecru / Maroon": "#8B4513",
-    Green: "#008000",
-    Caramel: "#C68E17",
+    "Green": "#008000",
+    "Caramel": "#C68E17",
     "Light green": "#90EE90",
-    Grey: "#808080",
-    Aubergine: "#472D47",
-    Lilac: "#C8A2C8",
-    Multicoloured: "#FFFFFF",
+    "Grey": "#808080",
+    "Aubergine": "#472D47",
+    "Lilac": "#C8A2C8",
+    "Multicoloured": "#FFFFFF",
     "Ink blue": "#006994",
-    striped: "#FFFFFF",
-    Pistachio: "#93C572",
+    "striped": "#FFFFFF",
+    "Pistachio": "#93C572",
     "dark russet": "#7C4848",
     "Deep blue": "#000080",
-    Wine: "#722F37",
+    "Wine": "#722F37",
     "Maroon Grey": "#8B4513",
-    Yellow: "#FFFF00",
-    Red: "#FF0000",
+    "Yellow": "#FFFF00",
+    "Red": "#FF0000",
     "Light beige": "#F5F5DC",
     "Light indigo": "#6F00FF",
-    Orange: "#FFA500",
-    Bluish: "#0000FF",
-    Terracotta: "#E2725B",
-    Beige: "#F5F5DC",
+    "Orange": "#FFA500",
+    "Bluish": "#0000FF",
+    "Terracotta": "#E2725B",
+    "Beige": "#F5F5DC",
     "Pastel pink": "#FFB6C1",
   };
 
