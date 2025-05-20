@@ -121,3 +121,32 @@ export const getMostRecentTryonResult = async (req, res, next) => {
     );
   }
 };
+
+export const deleteTryonResult = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    // Validate id is a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res
+        .status(400)
+        .json(new ApiResponse(400, null, "Invalid tryon result ID format"));
+    }
+
+    const tryonResult = await TryonResult.findByIdAndDelete(id);
+
+    if (!tryonResult) {
+      return res
+        .status(404)
+        .json(new ApiResponse(404, null, "Tryon result not found"));
+    }
+
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(200, null, "Tryon result deleted successfully")
+      );
+  } catch (error) {
+    next(new ApiError(500, error?.message || "Error deleting tryon result"));
+  }
+};
